@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_DATABASE: surprise
+      MYSQL_USER: surprise
+      MYSQL_PASSWORD: 12345678
+      MYSQL_ROOT_PASSWORD: 12345678
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_USER: surprise
+      PMA_PASSWORD: 12345678
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+
+  # Backend Service
+  backend:
+    image: node:16
+    container_name: backend
+    working_dir: /usr/src/app
+    environment:
+      DB_HOST: db
+      DB_USER: surprise
+      DB_PASSWORD: 12345678
+      DB_NAME: surprise
+    ports:
+      - "3000:3000"
+    command: /bin/sh -c "rm -rf src && git clone https://github.com/Surpriseproyect/SurpriseBackend.git src && cd src && npm install && npm run dev"
+    volumes:
+      - backend_data:/usr/src/app
+    depends_on:
+      - db
+
+  # Frontend Service
+  frontend:
+    image: node:16
+    container_name: frontend
+    working_dir: /usr/src/app
+    environment:
+      URL_BACK: http://backend:3000
+    ports:
+      - "4000:4000"  # Mapea el puerto 4000 del contenedor al puerto 3001 en el host
+    command: /bin/sh -c "rm -rf src && git clone https://github.com/Surpriseproyect/SurpriseFrontend.git src && cd src && npm install && npm start"
+    volumes:
+      - frontend_data:/usr/src/app
+
+volumes:
+  db_data:
+  backend_data:
+  frontend_data:
