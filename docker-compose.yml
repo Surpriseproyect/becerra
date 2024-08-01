@@ -21,8 +21,8 @@ services:
     container_name: phpmyadmin
     environment:
       PMA_HOST: db
-      PMA_USER: surprise
-      PMA_PASSWORD: 12345678
+      MYSQL_ROOT_USER: surprise
+      MYSQL_ROOT_PASSWORD: 12345678
     ports:
       - "8081:80"
     depends_on:
